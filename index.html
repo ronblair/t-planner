@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tyler's Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+
+   EDIT ONLY THE DATA BLOCK NEAR THE BOTTOM OF THIS FILE.
+
+   Everything above it is layout and can be left alone.
+
+   ============================================================ */
+
+:root{
+
+  --panel:#0E1114;
+
+  --bezel:#171C21;
+
+  --bezel-hi:#22292F;
+
+  --line:#2C343B;
+
+  --ink:#E8EAE6;
+
+  --ink-dim:#8A959D;
+
+  --amber:#F2B01E;
+
+  --green:#4FB286;
+
+  --red:#C9502F;
+
+  --radius:3px;
+
+}
+
+*{box-sizing:border-box}
+
+html,body{margin:0;padding:0}
+
+body{
+
+  background:var(--panel);
+
+  color:var(--ink);
+
+  font-family:'Barlow',system-ui,sans-serif;
+
+  font-size:16px;
+
+  line-height:1.5;
+
+  -webkit-font-smoothing:antialiased;
+
+  padding:0 0 64px;
+
+}
+
+.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+
+/* ---- eyebrow bar ---- */
+
+.topbar{
+
+  border-bottom:1px solid var(--line);
+
+  background:linear-gradient(180deg,#12171B,#0E1114);
+
+  padding:14px 0 12px;
+
+  margin-bottom:26px;
+
+}
+
+.topbar .wrap{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+
+.mark{
+
+  font-family:'Barlow Condensed',sans-serif;
+
+  font-weight:700;
+
+  font-size:19px;
+
+  letter-spacing:.16em;
+
+  text-transform:uppercase;
+
+}
+
+.mark span{color:var(--amber)}
+
+.asof{
+
+  font-family:'Roboto Mono',monospace;
+
+  font-size:11px;
+
+  color:var(--ink-dim);
+
+  letter-spacing:.06em;
+
+  text-transform:uppercase;
+
+}
+
+/* ---- section scaffolding ---- */
+
+.sect{margin:0 0 34px}
+
+.eyebrow{
+
+  font-family:'Roboto Mono',monospace;
+
+  font-size:10.5px;
+
+  letter-spacing:.2em;
+
+  text-transform:uppercase;
+
+  color:var(--ink-dim);
+
+  display:flex;align-items:center;gap:10px;
+
+  margin:0 0 14px;
+
+}
+
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ---- hero gauge ---- */
+
+.cluster{
+
+  display:flex;align-items:center;gap:26px;flex-wrap:wrap;
+
+  background:var(--bezel);
+
+  border:1px solid var(--line);
+
+  border-radius:var(--radius);
+
+  padding:24px 22px;
+
+}
+
+.gauge{flex:0 0 190px;position:relative}
+
+.gauge svg{display:block;width:190px;height:190px;overflow:visible}
+
+.gauge-center{
+
+  position:absolute;inset:0;
+
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+
+  pointer-events:none;
+
+}
+
+.gauge-pct{
+
+  font-family:'Barlow Condensed',sans-serif;
+
+  font-weight:700;font-size:44px;line-height:.9;
+
+  color:var(--amber);
+
+}
+
+.gauge-lab{
+
+  font-family:'Roboto Mono',monospace;
+
+  font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+
+  color:var(--ink-dim);margin-top:6px;text-align:center;
+
+}
+
+.hero-figs{flex:1 1 240px;min-width:220px}
+
+.bignum{
+
+  font-family:'Barlow Condensed',sans-serif;
+
+  font-weight:700;
+
+  font-size:clamp(46px,13vw,68px);
+
+  line-height:.92;
+
+  letter-spacing:-.01em;
+
+  font-variant-numeric:tabular-nums;
+
+}
+
+.bignum .cents{font-size:.5em;color:var(--ink-dim);margin-left:2px}
+
+.bigcap{
+
+  font-family:'Roboto Mono',monospace;
+
+  font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+
+  color:var(--ink-dim);margin:8px 0 16px;
+
+}
+
+.delta{
+
+  font-family:'Barlow Condensed',sans-serif;
+
+  font-weight:600;font-size:22px;
+
+  display:flex;align-items:baseline;gap:9px;
+
+}
+
+.delta small{
+
+  font-family:'Roboto Mono',monospace;
+
+  font-size:11px;font-weight:400;letter-spacing:.06em;
+
+  color:var(--ink-dim);text-transform:uppercase;
+
+}
+
+.up{color:var(--green)} .down{color:var(--red)}
+
+/* ---- readouts ---- */
+
+.readouts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+
+.readout{background:var(--bezel);padding:15px 14px}
+
+.readout .k{
+
+  font-family:'Roboto Mono',monospace;
+
+  font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-dim);
+
+  margin-bottom:7px;
+
+}
+
+.readout .v{
+
+  font-family:'Barlow Condensed',sans-serif;
+
+  font-weight:600;font-size:27px;line-height:1;font-variant-numeric:tabular-nums;
+
+}
+
+/* ---- holdings ---- */
+
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+
+th{
+
+  font-family:'Roboto Mono',monospace;
+
+  font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+
+  color:var(--ink-dim);text-align:right;font-weight:400;
+
+  padding:0 0 9px;border-bottom:1px solid var(--line);
+
+}
+
+th:first-child{text-align:left}
+
+td{padding:13px 0;border-bottom:1px solid rgba(44,52,59,.55);text-align:right;font-family:'Roboto Mono',monospace;font-size:13.5px}
+
+td:first-child{text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:600;letter-spacing:.02em}
+
+td .sub{display:block;font-family:'Barlow',sans-serif;font-size:11.5px;font-weight:400;color:var(--ink-dim);letter-spacing:0;margin-top:1px}
+
+td .sub2{display:none;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:400;color:var(--ink-dim);letter-spacing:0;margin-top:4px}
+
+.tag{
+
+  display:inline-block;vertical-align:middle;margin-left:7px;
+
+  font-family:'Roboto Mono',monospace;font-size:8.5px;letter-spacing:.1em;
+
+  text-transform:uppercase;padding:2px 5px;border:1px solid var(--line);
+
+  color:var(--ink-dim);border-radius:2px;
+
+}
+
+tr.total td{border-bottom:none;font-weight:500;color:var(--ink)}
+
+tr.total td:first-child{color:var(--ink-dim);font-size:15px;letter-spacing:.1em;text-transform:uppercase;font-family:'Roboto Mono',monospace;font-weight:400}
+
+/* ---- chart ---- */
+
+.chartbox{background:var(--bezel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 16px 12px}
+
+.chartbox svg{display:block;width:100%;height:190px;overflow:visible}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim)}
+
+.legend i{display:inline-block;width:16px;height:2px;vertical-align:middle;margin-right:6px}
+
+.emptynote{color:var(--ink-dim);font-size:13.5px;margin:14px 0 0;line-height:1.55}
+
+/* ---- what if ---- */
+
+.whatif{background:var(--bezel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px}
+
+.ctrl{margin-bottom:18px}
+
+.ctrl label{
+
+  display:flex;justify-content:space-between;align-items:baseline;
+
+  font-family:'Roboto Mono',monospace;font-size:10.5px;letter-spacing:.14em;
+
+  text-transform:uppercase;color:var(--ink-dim);margin-bottom:9px;
+
+}
+
+.ctrl label b{
+
+  font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:600;
+
+  letter-spacing:.01em;color:var(--amber);text-transform:none;
+
+}
+
+input[type=range]{
+
+  -webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;
+
+}
+
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line)}
+
+input[type=range]::-moz-range-track{height:2px;background:var(--line)}
+
+input[type=range]::-webkit-slider-thumb{
+
+  -webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+
+  background:var(--amber);margin-top:-7px;border:3px solid var(--bezel);
+
+}
+
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border:3px solid var(--bezel);border-radius:50%;background:var(--amber)}
+
+input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:4px}
+
+.result{
+
+  border-top:1px solid var(--line);margin-top:22px;padding-top:20px;
+
+}
+
+.result .num{
+
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+
+  font-size:clamp(40px,11vw,56px);line-height:.95;color:var(--amber);
+
+  font-variant-numeric:tabular-nums;
+
+}
+
+.result .cap{
+
+  font-family:'Roboto Mono',monospace;font-size:10.5px;letter-spacing:.14em;
+
+  text-transform:uppercase;color:var(--ink-dim);margin-top:9px;
+
+}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin-top:20px;border:1px solid var(--line)}
+
+.split div{background:var(--bezel);padding:13px 14px}
+
+.split .k{font-family:'Roboto Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:6px}
+
+.split .v{font-family:'Barlow Condensed',sans-serif;font-size:23px;font-weight:600;font-variant-numeric:tabular-nums}
+
+.milestones{margin-top:20px}
+
+.ms{display:flex;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid rgba(44,52,59,.55)}
+
+.ms:last-child{border-bottom:none}
+
+.ms .age{font-family:'Roboto Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);flex:0 0 78px}
+
+.ms .bar{flex:1;height:6px;background:rgba(242,176,30,.13);position:relative;border-radius:1px}
+
+.ms .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);border-radius:1px;transition:width .5s cubic-bezier(.2,.7,.3,1)}
+
+.ms .amt{font-family:'Roboto Mono',monospace;font-size:12.5px;flex:0 0 88px;text-align:right}
+
+/* ---- rule of 72 ---- */
+
+.r72{
+
+  border-left:2px solid var(--amber);
+
+  padding:2px 0 2px 16px;
+
+  font-size:15px;line-height:1.6;color:var(--ink);
+
+}
+
+.r72 b{font-family:'Barlow Condensed',sans-serif;font-size:19px;letter-spacing:.01em}
+
+.r72 .why{display:block;color:var(--ink-dim);font-size:13.5px;margin-top:7px}
+
+/* ---- editor ---- */
+
+details.editor{margin-top:44px;border-top:1px solid var(--line);padding-top:18px}
+
+details.editor summary{
+
+  cursor:pointer;font-family:'Roboto Mono',monospace;font-size:10.5px;
+
+  letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim);
+
+  list-style:none;
+
+}
+
+details.editor summary::-webkit-details-marker{display:none}
+
+details.editor summary::before{content:"+ ";color:var(--amber)}
+
+details.editor[open] summary::before{content:"- "}
+
+.edgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:20px 0}
+
+.edgrid label{display:block;font-family:'Roboto Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:6px}
+
+.edgrid input{
+
+  width:100%;background:#0B0E11;border:1px solid var(--line);color:var(--ink);
+
+  font-family:'Roboto Mono',monospace;font-size:13.5px;padding:9px 10px;border-radius:2px;
+
+}
+
+.edgrid input:focus-visible{outline:2px solid var(--amber);outline-offset:1px;border-color:var(--amber)}
+
+button{
+
+  font-family:'Roboto Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+
+  background:transparent;color:var(--amber);border:1px solid var(--amber);
+
+  padding:10px 16px;border-radius:2px;cursor:pointer;margin:0 8px 8px 0;
+
+}
+
+button:hover{background:rgba(242,176,30,.1)}
+
+button:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+
+textarea{
+
+  width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--line);
+
+  color:var(--ink-dim);font-family:'Roboto Mono',monospace;font-size:11.5px;
+
+  padding:12px;border-radius:2px;margin-top:14px;line-height:1.5;
+
+}
+
+.hint{font-size:13px;color:var(--ink-dim);line-height:1.6;margin:14px 0 0}
+
+.foot{margin-top:36px;font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#4B555D;text-align:center}
+
+@media (max-width:560px){
+
+  .readouts{grid-template-columns:1fr;}
+
+  .cluster{gap:18px;padding:20px 16px}
+
+  .gauge,.gauge svg{flex-basis:150px;width:150px;height:150px}
+
+  .gauge-pct{font-size:36px}
+
+  .ms .age{flex-basis:64px}
+
+  .ms .amt{flex-basis:76px}
+
+  .c-sh,.c-pr{display:none}
+
+  td .sub2{display:block}
+
+  td:first-child{font-size:18px}
+
+}
+
+@media (prefers-reduced-motion:reduce){
+
+  *{transition:none!important;animation:none!important}
+
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+<div class="mark">Tyler<span>.</span>UTMA</div>
+<div class="asof" id="asof"></div>
+</div></div>
+<div class="wrap">
+<!-- HERO -->
+<section class="sect">
+<div class="cluster">
+<div class="gauge">
+<svg viewBox="0 0 200 200" aria-hidden="true">
+<path id="gTrack" fill="none" stroke="#22292F" stroke-width="13" stroke-linecap="round"/>
+<path id="gFill"  fill="none" stroke="#F2B01E" stroke-width="13" stroke-linecap="round"/>
+</svg>
+<div class="gauge-center">
+<div class="gauge-pct" id="gPct">0%</div>
+<div class="gauge-lab" id="gLab">of goal</div>
+</div>
+</div>
+<div class="hero-figs">
+<div class="bignum" id="totVal">$0</div>
+<div class="bigcap">What the account is worth</div>
+<div class="delta" id="totDelta"></div>
+</div>
+</div>
+</section>
+<!-- READOUTS -->
+<section class="sect">
+<div class="eyebrow">The only three numbers that matter</div>
+<div class="readouts">
+<div class="readout"><div class="k">Money put in</div><div class="v" id="rIn">$0</div></div>
+<div class="readout"><div class="k">Money it made</div><div class="v" id="rGrow">$0</div></div>
+<div class="readout"><div class="k">Return so far</div><div class="v" id="rPct">0%</div></div>
+</div>
+<p class="emptynote" id="growthNote"></p>
+</section>
+<!-- HOLDINGS -->
+<section class="sect">
+<div class="eyebrow">What the money is in</div>
+<table>
+<thead><tr><th>Holding</th><th class="c-sh">Shares</th><th class="c-pr">Price</th><th>Value</th><th>Share of account</th></tr></thead>
+<tbody id="holdBody"></tbody>
+</table>
+</section>
+<!-- CHART -->
+<section class="sect">
+<div class="eyebrow">Where it has been, where it is headed</div>
+<div class="chartbox">
+<svg id="chart" viewBox="0 0 600 190" preserveAspectRatio="none" aria-label="Account value over time"></svg>
+<div class="legend">
+<span><i style="background:#F2B01E"></i>What it is worth</span>
+<span><i style="background:#8A959D"></i>What was put in</span>
+<span><i style="background:#4FB286;opacity:.6"></i>Projected path</span>
+<span><i style="background:#8A959D;opacity:.5"></i>Goal</span>
+</div>
+</div>
+<p class="emptynote" id="chartNote"></p>
+</section>
+<!-- WHAT IF -->
+<section class="sect">
+<div class="eyebrow">What if you kept adding to it</div>
+<div class="whatif">
+<div class="ctrl">
+<label for="sAdd">Added every month <b id="vAdd">$25</b></label>
+<input type="range" id="sAdd" min="0" max="300" step="5" value="25">
+</div>
+<div class="ctrl">
+<label for="sRet">Average yearly return <b id="vRet">7%</b></label>
+<input type="range" id="sRet" min="1" max="12" step="0.5" value="7">
+</div>
+<div class="ctrl">
+<label for="sYrs">Left alone for <b id="vYrs">25 years</b></label>
+<input type="range" id="sYrs" min="1" max="45" step="1" value="25">
+</div>
+<div class="result">
+<div class="num" id="fvOut">$0</div>
+<div class="cap" id="fvCap">Projected value</div>
+<div class="split">
+<div><div class="k">You would put in</div><div class="v" id="fvIn">$0</div></div>
+<div><div class="k">Growth would add</div><div class="v up" id="fvGain">$0</div></div>
+</div>
+</div>
+<div class="milestones" id="ms"></div>
+</div>
+<p class="emptynote">Projections are math, not promises. Real returns bounce around a lot from year to year, and some years are negative. The point is the shape of the line, not the exact number.</p>
+</section>
+<!-- RULE OF 72 -->
+<section class="sect">
+<div class="eyebrow">Rule of 72</div>
+<p class="r72" id="r72"></p>
+</section>
+<!-- HORIZON LESSON -->
+<section class="sect">
+<div class="eyebrow">Why it is not all in stocks</div>
+<p class="emptynote" id="horizon"></p>
+</section>
+<!-- EDITOR -->
+<details class="editor">
+<summary>Update the numbers</summary>
+<p class="hint">Change values here to see them update right away. Nothing saves on its own. When the numbers look right, press <b>Build data block</b>, copy what appears, and paste it over the DATA block in <code>index.html</code> on GitHub. The page goes live about 30 seconds after you commit.</p>
+<div class="edgrid" id="edGrid"></div>
+<button id="bSnap">Log this month's value</button>
+<button id="bBuild">Build data block</button>
+<button id="bCopy">Copy to clipboard</button>
+<textarea id="out" readonly placeholder="The data block will appear here."></textarea>
+<p class="hint" id="copyMsg"></p>
+</details>
+<div class="foot">Kept by hand, once a month</div>
+</div>
+<script>
+
+/* ==============================================================
+
+   DATA BLOCK  ---  this is the only part you need to edit
+
+   ==============================================================
+
+   goalTarget ...... what you are saving toward
+
+   contributed ..... total real dollars put in (NOT cost basis;
+
+                     reinvested dividends do not count as money
+
+                     you added).  <-- CHECK THIS NUMBER, it is a guess
+
+   cash ............ settled cash / money market
+
+   pending ......... deposits not yet invested
+
+   holdings ........ shares and last price for each position
+
+   history ......... one entry per month. Add a new line each month.
+
+   ============================================================== */
+
+const DATA = {
+
+  asOf: "2026-08-11",
+
+  name: "Tyler",
+
+  age: 13,
+
+  goalLabel: "car at 16",
+
+  goalTarget: 10000,
+
+  contributed: 5100.00,
+
+  cash: 21.02,
+
+  pending: 255.00,
+
+  holdings: [
+
+    { symbol:"SPYM", label:"S&P 500 index fund", type:"stocks",    shares:20.851, price:90.69 },
+
+    { symbol:"USFR", label:"Treasury notes",     type:"safe money", shares:63.729, price:50.42 }
+
+  ],
+
+  history: [
+
+    { date:"2026-08-11", value:5380.20, contributed:5100.00 }
+
+  ]
+
+};
+
+/* ============ END OF DATA BLOCK ============ */
+
+const $ = id => document.getElementById(id);
+
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+
+const money2 = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function rowsHtml(rows, val){
+
+  return rows.map(r=>`
+<tr>
+<td>${r.sym}${r.type?`<span class="tag">${r.type}</span>`:""}<span class="sub">${r.lab}</span>${
+
+        r.sh!==null?`<span class="sub2">${r.sh.toFixed(3)} sh @ $${r.pr.toFixed(2)}</span>`:""}</td>
+<td class="c-sh">${r.sh!==null?r.sh.toFixed(3):"&ndash;"}</td>
+<td class="c-pr">${r.pr!==null?"$"+r.pr.toFixed(2):"&ndash;"}</td>
+<td>${money2(r.v)}</td>
+<td>${(r.v/val*100).toFixed(1)}%</td>
+</tr>`).join("")
+
+  + `<tr class="total"><td>Total</td><td class="c-sh"></td><td class="c-pr"></td><td>${money2(val)}</td><td>100%</td></tr>`;
+
+}
+
+function totalValue(d){
+
+  return d.holdings.reduce((s,h)=>s+h.shares*h.price,0) + Number(d.cash) + Number(d.pending);
+
+}
+
+/* ---------- gauge geometry: 260 degree sweep ---------- */
+
+function arc(pct){
+
+  const cx=100, cy=100, r=82, start=140, sweep=260;
+
+  const a0=start, a1=start+sweep*Math.min(pct,1);
+
+  const pt=a=>[cx+r*Math.cos(a*Math.PI/180), cy+r*Math.sin(a*Math.PI/180)];
+
+  const [x0,y0]=pt(a0), [x1,y1]=pt(a1);
+
+  const large = sweep*Math.min(pct,1) > 180 ? 1 : 0;
+
+  return `M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}`;
+
+}
+
+/* ---------- render ---------- */
+
+function render(){
+
+  const d = DATA;
+
+  const val = totalValue(d);
+
+  const contrib = Number(d.contributed);
+
+  const grow = val - contrib;
+
+  const pctRet = contrib > 0 ? grow/contrib*100 : 0;
+
+  $("asof").textContent = "as of " + new Date(d.asOf+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+
+  const [dollars,cents] = val.toFixed(2).split(".");
+
+  $("totVal").innerHTML = "$" + Number(dollars).toLocaleString("en-US") + '<span class="cents">.'+cents+'</span>';
+
+  const cls = grow>=0 ? "up":"down", sign = grow>=0?"+":"-";
+
+  $("totDelta").innerHTML =
+
+    `<span class="${cls}">${sign}${money2(Math.abs(grow))}</span>` +
+
+    `<span class="${cls}">${sign}${Math.abs(pctRet).toFixed(1)}%</span>` +
+
+    `<small>counting dividends</small>`;
+
+  // gauge
+
+  const gp = d.goalTarget>0 ? val/d.goalTarget : 0;
+
+  $("gTrack").setAttribute("d", arc(1));
+
+  $("gLab").innerHTML = "toward " + money(d.goalTarget) + "<br>" + d.goalLabel;
+
+  const fill = $("gFill"), pctEl = $("gPct");
+
+  if(reduceMotion){
+
+    fill.setAttribute("d", arc(gp));
+
+    pctEl.textContent = Math.round(gp*100)+"%";
+
+  } else {
+
+    const t0 = performance.now(), dur = 900;
+
+    (function step(t){
+
+      const k = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-k,3);
+
+      fill.setAttribute("d", arc(gp*e));
+
+      pctEl.textContent = Math.round(gp*e*100)+"%";
+
+      if(k<1) requestAnimationFrame(step);
+
+    })(t0);
+
+  }
+
+  $("rIn").textContent   = money2(contrib);
+
+  $("rGrow").textContent = (grow>=0?"+":"-") + money2(Math.abs(grow));
+
+  $("rGrow").className   = "v " + cls;
+
+  $("rPct").textContent  = (pctRet>=0?"+":"-") + Math.abs(pctRet).toFixed(1) + "%";
+
+  $("rPct").className    = "v " + cls;
+
+  $("growthNote").textContent =
+
+    "Fidelity's own screen will not show you this. Its gain column compares value to cost basis, "
+
+    + "so every reinvested dividend quietly raises the basis instead of counting as a gain. That is why USFR looks flat there "
+
+    + "while actually earning around 3.5% a year. Money put in versus what it is worth is the honest version.";
+
+  // holdings
+
+  const rows = d.holdings.map(h=>({sym:h.symbol,lab:h.label,type:h.type,sh:h.shares,pr:h.price,v:h.shares*h.price}));
+
+  if(Number(d.cash)>0)    rows.push({sym:"Cash",lab:"money market",type:"safe money",sh:null,pr:null,v:Number(d.cash)});
+
+  if(Number(d.pending)>0) rows.push({sym:"Pending",lab:"deposited, not invested yet",type:null,sh:null,pr:null,v:Number(d.pending)});
+
+  $("holdBody").innerHTML = rowsHtml(rows, val);
+
+  drawChart(val, contrib);
+
+  updateWhatIf();
+
+  buildEditor();
+
+}
+
+/* ---------- chart: history, projection, and the goal line ---------- */
+
+function drawChart(val, contrib){
+
+  const svg = $("chart"), W=600, H=190, PB=22, TP=16;
+
+  const hist = DATA.history.slice().sort((a,b)=>a.date.localeCompare(b.date));
+
+  const goal = Number(DATA.goalTarget)||0;
+
+  // project forward at the current slider settings, out to the goal age
+
+  const addEl=$("sAdd"), retEl=$("sRet");
+
+  const add = addEl?+addEl.value:25, ret = retEl?+retEl.value:7;
+
+  const goalAge = parseInt(String(DATA.goalLabel).match(/\d+/)?.[0] || (DATA.age+2), 10);
+
+  const months = Math.max(6, Math.min((goalAge-DATA.age)*12, 120));
+
+  const r = ret/100/12;
+
+  const proj=[]; let v=val;
+
+  const stepM = Math.max(1, Math.round(months/8));
+
+  for(let m=1;m<=months;m++){ v = v*(1+r)+add; if(m%stepM===0||m===months) proj.push(v); }
+
+  const maxV = Math.max(goal, val, contrib, ...proj) * 1.10;
+
+  const nHist = Math.max(hist.length,1);
+
+  const totalPts = nHist + proj.length;
+
+  const x = i => 10 + (i/(totalPts-1||1))*(W-20);
+
+  const y = q => (H-PB) - (q/maxV)*(H-PB-TP);
+
+  let out = `<line x1="10" y1="${H-PB}" x2="${W-10}" y2="${H-PB}" stroke="#2C343B" stroke-width="1"/>`;
+
+  // goal line
+
+  if(goal>0){
+
+    const gy = y(goal);
+
+    out += `<line x1="10" y1="${gy}" x2="${W-10}" y2="${gy}" stroke="#8A959D" stroke-opacity=".45" stroke-width="1" stroke-dasharray="6 5"/>`;
+
+    out += `<text x="${W-10}" y="${gy-7}" fill="#8A959D" text-anchor="end" font-family="Roboto Mono, monospace" font-size="9.5" letter-spacing="1.2">GOAL ${money(goal).toUpperCase()}</text>`;
+
+  }
+
+  // divider between recorded and projected
+
+  if(proj.length){
+
+    const dx = x(nHist-1);
+
+    out += `<line x1="${dx}" y1="${TP-4}" x2="${dx}" y2="${H-PB}" stroke="#2C343B" stroke-width="1" stroke-dasharray="2 4"/>`;
+
+    out += `<text x="${dx+7}" y="${TP+4}" fill="#4B555D" font-family="Roboto Mono, monospace" font-size="9" letter-spacing="1.2">FROM HERE ON, MATH</text>`;
+
+    const pts = [[x(nHist-1),y(val)], ...proj.map((q,i)=>[x(nHist+i),y(q)])];
+
+    out += `<polyline fill="none" stroke="#4FB286" stroke-opacity=".6" stroke-width="2" stroke-dasharray="4 4" points="${pts.map(p=>p.map(n=>n.toFixed(1)).join(",")).join(" ")}"/>`;
+
+    const last = proj[proj.length-1];
+
+    out += `<circle cx="${x(totalPts-1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="3.5" fill="none" stroke="#4FB286" stroke-width="1.8"/>`;
+
+    out += `<text x="${x(totalPts-1).toFixed(1)}" y="${(y(last)-10).toFixed(1)}" fill="#4FB286" text-anchor="end" font-family="Roboto Mono, monospace" font-size="10">${money(last)}</text>`;
+
+  }
+
+  const cPts = hist.map((h,i)=>[x(i),y(h.contributed)]);
+
+  if(cPts.length>1) out += `<polyline fill="none" stroke="#8A959D" stroke-width="2" points="${cPts.map(p=>p.map(n=>n.toFixed(1)).join(",")).join(" ")}"/>`;
+
+  const vPts = hist.map((h,i)=>[x(i),y(h.value)]);
+
+  if(vPts.length>1) out += `<polyline fill="none" stroke="#F2B01E" stroke-width="2.5" points="${vPts.map(p=>p.map(n=>n.toFixed(1)).join(",")).join(" ")}"/>`;
+
+  hist.forEach((h,i)=>{
+
+    out += `<circle cx="${x(i).toFixed(1)}" cy="${y(h.value).toFixed(1)}" r="4.5" fill="#F2B01E"/>`;
+
+    if(hist.length<=8 || i===hist.length-1){
+
+      const dt = new Date(h.date+"T12:00:00").toLocaleDateString("en-US",{month:"short",year:"2-digit"});
+
+      out += `<text x="${x(i).toFixed(1)}" y="${H-7}" fill="#4B555D" text-anchor="${i===0?"start":"middle"}" font-family="Roboto Mono, monospace" font-size="9" letter-spacing="1">${dt.toUpperCase()}</text>`;
+
+    }
+
+  });
+
+  svg.innerHTML = out;
+
+  const shortBy = goal - (proj.length?proj[proj.length-1]:val);
+
+  $("chartNote").textContent = hist.length<2
+
+    ? `One dot so far. Add a value each month and the line writes itself. The dashed green path is where $${add} a month at ${ret}% lands by age ${goalAge}` +
+
+      (shortBy>0 ? `, about ${money(shortBy)} short of the goal. Move the sliders below to see what closes the gap.`
+
+                 : `, which clears the goal.`)
+
+    : "The gap between the amber line and the grey line is money the account made on its own.";
+
+}
+
+/* ---------- what if ---------- */
+
+function fv(P, monthly, annualPct, years){
+
+  const i = annualPct/100/12, m = Math.round(years*12);
+
+  if(i===0) return P + monthly*m;
+
+  return P*Math.pow(1+i,m) + monthly*((Math.pow(1+i,m)-1)/i);
+
+}
+
+function updateWhatIf(){
+
+  const add = +$("sAdd").value, ret = +$("sRet").value, yrs = +$("sYrs").value;
+
+  $("vAdd").textContent = "$"+add;
+
+  $("vRet").textContent = ret+"%";
+
+  $("vYrs").textContent = yrs+(yrs===1?" year":" years");
+
+  const P = totalValue(DATA);
+
+  const end = fv(P, add, ret, yrs);
+
+  const paidIn = P + add*yrs*12;
+
+  $("fvOut").textContent = money(end);
+
+  $("fvCap").textContent = `What it could be worth at age ${DATA.age + yrs}`;
+
+  $("fvIn").textContent = money(paidIn);
+
+  $("fvGain").textContent = "+" + money(end - paidIn);
+
+  const ages = [16,18,21,25,30,40,50].filter(a=>a>DATA.age);
+
+  const vals = ages.map(a=>({a, v:fv(P, add, ret, a-DATA.age)}));
+
+  const top = Math.max(...vals.map(v=>v.v));
+
+  $("ms").innerHTML = vals.map(v=>`
+<div class="ms">
+<div class="age">Age ${v.a}</div>
+<div class="bar"><i style="width:${(Math.sqrt(v.v/top)*100).toFixed(1)}%"></i></div>
+<div class="amt">${money(v.v)}</div>
+</div>`).join("");
+
+  const dbl = 72/ret;
+
+  $("r72").innerHTML = `At <b>${ret}%</b> a year, money doubles about every <b>${dbl.toFixed(1)} years</b>.`
+
+    + `<span class="why">So ${money(P)} becomes roughly ${money(P*2)} by age ${Math.round(DATA.age+dbl)}, `
+
+    + `${money(P*4)} by age ${Math.round(DATA.age+dbl*2)}, and ${money(P*8)} by age ${Math.round(DATA.age+dbl*3)}, `
+
+    + `without adding another dollar. Divide 72 by the return and you get the doubling time. That is the whole trick.</span>`;
+
+  const stocksPct = DATA.holdings.filter(h=>h.type==="stocks").reduce((s,h)=>s+h.shares*h.price,0)/P*100;
+
+  $("horizon").textContent =
+
+    `About ${stocksPct.toFixed(0)}% of this account is in stocks and the rest is in safe money. If the goal is a ${DATA.goalLabel}, `
+
+    + `that money has roughly two years to sit still, and stocks can drop 30% in a bad year with no time to recover. `
+
+    + `Safe money earns less but it will be there. The same dollars would belong almost entirely in stocks if nobody touched them for 25 years. `
+
+    + `Nothing changed about the money. What changed is when you need it. That is the whole reason to split it.`;
+
+}
+
+/* ---------- editor ---------- */
+
+const FIELDS = [
+
+  ["asOf","As of date","text"],
+
+  ["goalTarget","Goal amount","number"],
+
+  ["contributed","Total put in","number"],
+
+  ["cash","Cash","number"],
+
+  ["pending","Pending","number"]
+
+];
+
+function buildEditor(){
+
+  const g = $("edGrid");
+
+  if(g.dataset.built) return;
+
+  g.dataset.built = "1";
+
+  let html = FIELDS.map(([k,lab,t])=>
+
+    `<div><label for="f_${k}">${lab}</label><input id="f_${k}" type="${t}" step="0.01" value="${DATA[k]}"></div>`).join("");
+
+  DATA.holdings.forEach((h,i)=>{
+
+    html += `<div><label for="h_sh_${i}">${h.symbol} shares</label><input id="h_sh_${i}" type="number" step="0.001" value="${h.shares}"></div>`
+
+         +  `<div><label for="h_pr_${i}">${h.symbol} price</label><input id="h_pr_${i}" type="number" step="0.01" value="${h.price}"></div>`;
+
+  });
+
+  g.innerHTML = html;
+
+  g.addEventListener("input", pullEdits);
+
+}
+
+function pullEdits(){
+
+  FIELDS.forEach(([k,,t])=>{
+
+    const el = $("f_"+k); if(!el) return;
+
+    DATA[k] = t==="number" ? (parseFloat(el.value)||0) : el.value;
+
+  });
+
+  DATA.holdings.forEach((h,i)=>{
+
+    h.shares = parseFloat($("h_sh_"+i).value)||0;
+
+    h.price  = parseFloat($("h_pr_"+i).value)||0;
+
+  });
+
+  const val = totalValue(DATA);
+
+  const [dollars,cents] = val.toFixed(2).split(".");
+
+  $("totVal").innerHTML = "$" + Number(dollars).toLocaleString("en-US") + '<span class="cents">.'+cents+'</span>';
+
+  const grow = val - Number(DATA.contributed), pctRet = DATA.contributed>0 ? grow/DATA.contributed*100 : 0;
+
+  const cls = grow>=0?"up":"down", sign = grow>=0?"+":"-";
+
+  $("totDelta").innerHTML = `<span class="${cls}">${sign}${money2(Math.abs(grow))}</span><span class="${cls}">${sign}${Math.abs(pctRet).toFixed(1)}%</span><small>counting dividends</small>`;
+
+  $("rIn").textContent = money2(Number(DATA.contributed));
+
+  $("rGrow").textContent = sign+money2(Math.abs(grow)); $("rGrow").className="v "+cls;
+
+  $("rPct").textContent = sign+Math.abs(pctRet).toFixed(1)+"%"; $("rPct").className="v "+cls;
+
+  const gp = DATA.goalTarget>0 ? val/DATA.goalTarget : 0;
+
+  $("gFill").setAttribute("d", arc(gp));
+
+  $("gPct").textContent = Math.round(gp*100)+"%";
+
+  $("gLab").innerHTML = "toward " + money(DATA.goalTarget) + "<br>" + DATA.goalLabel;
+
+  // holdings table
+
+  const rows = DATA.holdings.map(h=>({sym:h.symbol,lab:h.label,type:h.type,sh:h.shares,pr:h.price,v:h.shares*h.price}));
+
+  if(Number(DATA.cash)>0)    rows.push({sym:"Cash",lab:"money market",type:"safe money",sh:null,pr:null,v:Number(DATA.cash)});
+
+  if(Number(DATA.pending)>0) rows.push({sym:"Pending",lab:"deposited, not invested yet",type:null,sh:null,pr:null,v:Number(DATA.pending)});
+
+  $("holdBody").innerHTML = rowsHtml(rows, val);
+
+  drawChart(val, Number(DATA.contributed));
+
+  updateWhatIf();
+
+}
+
+$("bSnap").addEventListener("click", ()=>{
+
+  const v = totalValue(DATA);
+
+  const d = DATA.asOf;
+
+  DATA.history = DATA.history.filter(h=>h.date!==d);
+
+  DATA.history.push({date:d, value:+v.toFixed(2), contributed:+Number(DATA.contributed).toFixed(2)});
+
+  DATA.history.sort((a,b)=>a.date.localeCompare(b.date));
+
+  drawChart(v, Number(DATA.contributed));
+
+  $("copyMsg").textContent = `Logged ${d} at ${money2(v)}. Build the data block to keep it.`;
+
+});
+
+$("bBuild").addEventListener("click", ()=>{
+
+  const h = DATA.holdings.map(x=>
+
+    `    { symbol:"${x.symbol}", label:"${x.label}", type:"${x.type}", shares:${x.shares}, price:${x.price} }`).join(",\n");
+
+  const hist = DATA.history.map(x=>
+
+    `    { date:"${x.date}", value:${x.value.toFixed(2)}, contributed:${x.contributed.toFixed(2)} }`).join(",\n");
+
+  $("out").value =
+
+`const DATA = {
+
+  asOf: "${DATA.asOf}",
+
+  name: "${DATA.name}",
+
+  age: ${DATA.age},
+
+  goalLabel: "${DATA.goalLabel}",
+
+  goalTarget: ${DATA.goalTarget},
+
+  contributed: ${Number(DATA.contributed).toFixed(2)},
+
+  cash: ${Number(DATA.cash).toFixed(2)},
+
+  pending: ${Number(DATA.pending).toFixed(2)},
+
+  holdings: [
+
+${h}
+
+  ],
+
+  history: [
+
+${hist}
+
+  ]
+
+};`;
+
+  $("copyMsg").textContent = "Ready. Paste this over the DATA block in index.html.";
+
+});
+
+$("bCopy").addEventListener("click", async ()=>{
+
+  if(!$("out").value){ $("copyMsg").textContent = "Build the data block first."; return; }
+
+  try{ await navigator.clipboard.writeText($("out").value); $("copyMsg").textContent = "Copied."; }
+
+  catch(e){ $("out").select(); $("copyMsg").textContent = "Clipboard blocked. The text is selected, copy it by hand."; }
+
+});
+
+["sAdd","sRet","sYrs"].forEach(id=>$(id).addEventListener("input", ()=>{
+
+  updateWhatIf();
+
+  drawChart(totalValue(DATA), Number(DATA.contributed));
+
+}));
+
+render();
+</script>
+</body>
+</html>
+ 
