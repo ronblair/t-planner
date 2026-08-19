@@ -91,9 +91,9 @@ body{
 
 .buildbox svg{display:block;width:100%;max-width:460px;margin:0 auto;height:auto}
 
-.part-locked{fill:none;stroke:#2C343B;stroke-width:1.6;stroke-dasharray:4 4}
+.part-ghost *{fill:none!important;stroke:#39424B!important;stroke-width:1.3!important;stroke-dasharray:5 4!important}
 
-.part-on{stroke:#F2B01E;stroke-width:1.8}
+.part-ghost text{display:none!important}
 
 .buildbar{height:8px;background:#0B0E11;border:1px solid var(--line);border-radius:2px;margin-top:16px;position:relative;overflow:hidden}
 
@@ -102,6 +102,32 @@ body{
 .buildmeta{display:flex;justify-content:space-between;gap:10px;margin-top:9px;font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
 
 .buildmeta b{color:var(--amber);font-weight:700}
+
+.stagectl{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+
+.stagectl button{font-family:'Roboto Mono',monospace;font-size:12px;background:#0B0E11;border:1px solid var(--line);color:var(--ink);width:34px;height:30px;border-radius:2px;cursor:pointer}
+
+.stagectl button:hover{border-color:var(--amber);color:var(--amber)}
+
+.stagectl button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+.stagectl button.today{width:auto;padding:0 12px;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+
+.pips{display:flex;gap:6px;flex:1;min-width:140px}
+
+.pip{flex:1;height:8px;border-radius:2px;background:#0B0E11;border:1px solid var(--line);cursor:pointer;padding:0}
+
+.pip.built{background:var(--amber);border-color:var(--amber)}
+
+.pip.preview{background:rgba(242,176,30,.28);border-color:rgba(242,176,30,.5)}
+
+.pip:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+.stagelabel{font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-top:9px;min-height:16px}
+
+.stagelabel b{color:var(--ink)}
+
+.stagelabel .fut{color:var(--r-rare)}
 
 .herofigs{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:20px}
 
@@ -135,11 +161,13 @@ body{
 
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 
-th{font-family:'Roboto Mono',monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:right;font-weight:400;padding:0 0 9px;border-bottom:1px solid var(--line)}
+th{font-family:'Roboto Mono',monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:right;font-weight:400;padding:0 0 9px 16px;border-bottom:1px solid var(--line)}
 
-th:first-child{text-align:left}
+th:first-child{text-align:left;padding-left:0}
 
-td{padding:13px 0;border-bottom:1px solid rgba(44,52,59,.55);text-align:right;font-family:'Roboto Mono',monospace;font-size:13.5px}
+td{padding:13px 0 13px 16px;border-bottom:1px solid rgba(44,52,59,.55);text-align:right;font-family:'Roboto Mono',monospace;font-size:13.5px;white-space:nowrap}
+
+td:first-child{padding-left:0;white-space:normal}
 
 td:first-child{text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:600;letter-spacing:.02em}
 
@@ -313,7 +341,9 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
 
   .c-sh,.c-pr{display:none}
 
-  td:first-child{font-size:18px}
+  td{font-size:12.5px;padding-left:12px}
+
+  td:first-child{font-size:18px;padding-left:0}
 
   .ms .age{flex-basis:58px}
 
@@ -334,12 +364,19 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
 <section class="sect">
 <div class="eyebrow">Building the first car, one deposit at a time</div>
 <div class="buildbox">
-<svg id="carSvg" viewBox="0 0 460 170" aria-label="Car build progress"></svg>
+<svg id="carSvg" viewBox="0 0 480 190" aria-label="Car build progress"></svg>
 <div class="buildbar"><i id="buildFill" style="width:0%"></i></div>
 <div class="buildmeta">
 <span id="buildPct"><b>0%</b> built</span>
 <span id="buildNext"></span>
 </div>
+<div class="stagectl">
+<button id="stPrev" aria-label="Previous stage">&#8249;</button>
+<div class="pips" id="pips"></div>
+<button id="stNext" aria-label="Next stage">&#8250;</button>
+<button class="today" id="stToday">Today</button>
+</div>
+<div class="stagelabel" id="stageLabel"></div>
 <div class="herofigs">
 <div>
 <div class="bignum" id="totVal">$0</div>
@@ -430,9 +467,8 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
 <div class="eyebrow">Why it's not all in stocks</div>
 <p class="note" id="horizon"></p>
 </section>
-<!-- EDITOR -- but have it hidden for now as more of a distraction than helpful -->
-
-<details style="display: none;"class="editor">
+<!-- EDITOR -->
+<details class="editor" id="editorBox">
 <summary>Update the numbers</summary>
 <p class="hint">Change values to see them update live. Nothing saves on its own. When it looks right: <b>Log this month's value</b>, then <b>Build data block</b>, copy it, and paste it over the DATA block in <code>index.html</code> on GitHub. Live about 30 seconds after you commit.</p>
 <div class="edgrid" id="edGrid"></div>
@@ -441,9 +477,8 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
 <button class="act" id="bCopy">Copy to clipboard</button>
 <textarea id="out" readonly placeholder="The data block will appear here."></textarea>
 <p class="hint" id="copyMsg"></p>
-</details> 
-
-<div class="foot">This Will be Updated Monthly :) </div>
+</details>
+<div class="foot">Kept by hand, once a month</div>
 </div>
 <script>
 
@@ -561,68 +596,236 @@ function goalAge(){ const m=String(DATA.goalLabel).match(/\d+/); return m?parseI
 
 const PARTS = [
 
-  {at:10, id:"wheels",  name:"wheels"},
+  {at:6,   name:"Frame"},
 
-  {at:25, id:"chassis", name:"chassis"},
+  {at:13,  name:"Suspension"},
 
-  {at:50, id:"body",    name:"body"},
+  {at:20,  name:"Wheels & tires"},
 
-  {at:70, id:"canopy",  name:"windows"},
+  {at:27,  name:"Brakes"},
 
-  {at:85, id:"wing",    name:"rear wing"},
+  {at:34,  name:"Engine"},
 
-  {at:100,id:"lights",  name:"the keys"}
+  {at:41,  name:"Exhaust"},
+
+  {at:50,  name:"Body shell"},
+
+  {at:58,  name:"Splitter & intakes"},
+
+  {at:66,  name:"Doors & mirror"},
+
+  {at:74,  name:"Glass & interior"},
+
+  {at:82,  name:"Rear wing"},
+
+  {at:91,  name:"Trim & badges"},
+
+  {at:100, name:"Lights + keys"}
 
 ];
 
-function drawCar(pct){
+let viewStage = null; /* null = follow real progress */
 
-  const on = p => pct >= p ? "part-on" : "part-locked";
+function stagesBuilt(pct){ return PARTS.filter(p=>pct>=p.at).length; }
 
-  const fill = p => pct >= p ? 'fill="#1E242B"' : "";
+/* each stage renders solid when built, the very next one as a dashed ghost, the rest hidden */
 
-  const bodyFill = pct>=50 ? 'fill="#131A20"' : "";
+function carSVG(n){
 
-  const lightsOn = pct>=100;
+  const RED="#D0342C", RED2="#8F1F19", DARKRED="#7E1E19", RIMC="#9FA8B0",
 
-  $("carSvg").innerHTML = `
-<line x1="10" y1="146" x2="450" y2="146" stroke="#2C343B" stroke-width="1"/>
-<g class="${on(25)}"><path d="M 96 132 L 364 132 L 372 124 L 88 124 Z" ${fill(25)}/></g>
-<g class="${on(50)}">
-<path d="M 60 124 L 84 96 L 150 84 L 210 62 L 300 62 L 366 84 L 408 100 L 416 124 Z" ${bodyFill}/>
-<path d="M 60 124 L 84 96 L 150 84" fill="none"/>
-</g>
-<g class="${on(70)}"><path d="M 168 84 L 216 66 L 292 66 L 336 82 L 300 88 L 200 88 Z" ${pct>=70?'fill="#0B1A24"':''}/></g>
-<g class="${on(85)}"><path d="M 380 78 L 428 72 L 430 78 L 388 84 Z M 400 78 L 402 96" ${fill(85)}/></g>
-<g class="${on(10)}">
-<circle cx="126" cy="128" r="22" ${fill(10)}/><circle cx="126" cy="128" r="9" fill="none"/>
-<circle cx="340" cy="128" r="22" ${fill(10)}/><circle cx="340" cy="128" r="9" fill="none"/>
-</g>
-<g class="${on(100)}">
-<path d="M 62 112 L 76 108 L 76 116 L 62 118 Z" ${lightsOn?'fill="#F2B01E"':''}/>
+        TIRE="#14171B", COPPER="#C97A33", AMBER="#F2B01E", CHROME="#C9CFD4";
 
-      ${lightsOn?'<path d="M 60 113 L 18 104 L 18 124 L 60 117 Z" fill="#F2B01E" opacity=".18" stroke="none"/>':''}
-</g>
+  const wheel = (cx, brakes) => `
+<circle cx="${cx}" cy="140" r="27" fill="${TIRE}" stroke="#343B42" stroke-width="2.4"/>
+<circle cx="${cx}" cy="140" r="15" fill="url(#gRim)" stroke="#59636C" stroke-width="1.4"/>
 
-    ${lightsOn?'<text x="230" y="30" text-anchor="middle" fill="#F2B01E" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="22" letter-spacing="4">KEYS EARNED</text>':''}
+    ${brakes?`<circle cx="${cx}" cy="140" r="9.5" fill="#3A4148"/>
+<rect x="${cx+6}" y="132.5" width="5.5" height="14" rx="2.5" fill="${AMBER}"/>`:""}
+<path d="M ${cx} 128 L ${cx} 152 M ${cx-10.4} 133.5 L ${cx+10.4} 146.5 M ${cx-10.4} 146.5 L ${cx+10.4} 133.5 M ${cx-12} 140 L ${cx+12} 140" stroke="#454E57" stroke-width="2"/>
+<circle cx="${cx}" cy="140" r="3" fill="#59636C"/>`;
 
-  `;
+  const STAGES = [
 
-  const pctClamped = Math.min(pct,100);
+    /* 0 frame */ `
+<path d="M 76 148 H 410" fill="none" stroke="#6E7A84" stroke-width="2.4"/>
+<path d="M 104 148 L 116 112 M 180 148 V 104 M 300 148 V 104 M 388 148 L 376 114" fill="none" stroke="#6E7A84" stroke-width="2"/>
+<path d="M 116 112 L 180 104 L 300 104 L 376 114" fill="none" stroke="#6E7A84" stroke-width="2"/>
+<rect x="118" y="150" width="220" height="5" fill="#1C2228"/>`,
+
+    /* 1 suspension */ `
+
+      ${[132,352].map(cx=>`
+<path d="M ${cx-36} 148 L ${cx} 141 M ${cx+36} 148 L ${cx} 141" fill="none" stroke="#8A959D" stroke-width="2"/>
+<path d="M ${cx} 114 l 8 4 l -16 4 l 16 4 l -16 4 l 14 4" fill="none" stroke="#8A959D" stroke-width="2"/>`).join("")}`,
+
+    /* 2 wheels */ `${wheel(132,false)}${wheel(352,false)}`,
+
+    /* 3 brakes (redraws wheel with disc+caliper) */ `${wheel(132,true)}${wheel(352,true)}`,
+
+    /* 4 engine */ `
+<rect x="296" y="100" width="52" height="34" rx="4" fill="${COPPER}" stroke="#8F5624" stroke-width="1.6"/>
+<path d="M 304 100 V 90 H 313 V 100 M 322 100 V 87 H 331 V 100" fill="none" stroke="#8F5624" stroke-width="2"/>
+<circle cx="308" cy="122" r="6" fill="none" stroke="#8F5624" stroke-width="2"/>`,
+
+    /* 5 exhaust */ `
+<path d="M 348 126 Q 396 128 424 130" fill="none" stroke="#59636C" stroke-width="3"/>
+<circle cx="431" cy="129" r="5" fill="#454E57" stroke="#6E7A84" stroke-width="1.4"/>
+<circle cx="431" cy="140" r="5" fill="#454E57" stroke="#6E7A84" stroke-width="1.4"/>`,
+
+    /* 6 body */ `
+<path d="M 44 144 L 47 126 Q 52 112 74 107 Q 128 98 172 94 Q 192 90 212 72 Q 224 63 252 60 L 298 60 Q 328 62 352 78 Q 398 94 428 106 Q 440 111 440 124 L 436 144 L 385 144 A 33 33 0 0 0 319 144 L 166 144 A 33 33 0 0 0 98 144 Z"
+
+        fill="url(#gBody)" stroke="${RED2}" stroke-width="1.5"/>
+<path d="M 385 144 A 33 33 0 0 0 319 144 Z M 166 144 A 33 33 0 0 0 98 144 Z" fill="#101318"/>
+<path d="M 166 144 L 319 144 L 317 152 L 169 152 Z M 385 144 L 436 144 L 433 152 L 388 152 Z M 44 144 L 98 144 L 96 152 L 48 152 Z" fill="${DARKRED}"/>
+<path d="M 172 94 Q 192 90 212 72" fill="none" stroke="${RED2}" stroke-width="1.2"/>`,
+
+    /* 7 splitter & intakes */ `
+<path d="M 40 152 L 33 152 L 37 142 L 46 141 Z" fill="#23282E" stroke="#12161A" stroke-width="1.2"/>
+<path d="M 52 128 L 92 122 L 92 136 L 55 138 Z" fill="${TIRE}" stroke="#2C343B" stroke-width="1.2"/>
+<path d="M 296 112 L 330 106 L 335 128 L 300 130 Z" fill="${TIRE}" stroke="#2C343B" stroke-width="1.2"/>`,
+
+    /* 8 doors & mirror */ `
+<path d="M 212 95 Q 207 120 210 144 M 292 90 Q 296 118 298 144" fill="none" stroke="${RED2}" stroke-width="1.3"/>
+<rect x="270" y="104" width="16" height="4.5" rx="2" fill="${DARKRED}"/>
+<path d="M 208 88 L 199 79" stroke="${RED2}" stroke-width="2.4" fill="none"/>
+<ellipse cx="195" cy="77" rx="7" ry="4.5" fill="${RED}" stroke="${RED2}" stroke-width="1.2"/>`,
+
+    /* 9 glass & interior */ `
+<path d="M 244 92 Q 242 74 252 72 Q 258 72 257 80 L 258 92 Z" fill="#1A1D21"/>
+<circle cx="226" cy="83" r="4" fill="none" stroke="#1A1D21" stroke-width="2.4"/>
+<path d="M 200 92 Q 216 68 250 64 L 296 64 Q 322 66 346 80 L 318 88 Q 262 94 212 95 Z"
+
+        fill="url(#gGlass)" fill-opacity=".88" stroke="#57748C" stroke-width="1.3"/>
+<path d="M 286 64 L 290 89" stroke="#22282E" stroke-width="3" fill="none"/>`,
+
+    /* 10 wing */ `
+<path d="M 372 78 L 375 58 M 400 76 L 403 56" stroke="#23282E" stroke-width="3.5" fill="none"/>
+<path d="M 356 54 Q 400 48 444 50 L 445 58 Q 400 56 358 62 Z" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.3"/>
+<rect x="441" y="45" width="6" height="19" rx="1.5" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.2"/>`,
+
+    /* 11 trim & badges */ `
+<path d="M 70 116 Q 200 103 300 106 Q 380 110 430 118" fill="none" stroke="#F0796B" stroke-width="1.2" opacity=".75"/>
+<path d="M 212 95 Q 262 94 318 88" fill="none" stroke="${CHROME}" stroke-width="1"/>
+<circle cx="66" cy="111" r="2.6" fill="${CHROME}"/>
+<circle cx="132" cy="140" r="3" fill="${AMBER}"/><circle cx="352" cy="140" r="3" fill="${AMBER}"/>
+<rect x="270" y="104" width="16" height="4.5" rx="2" fill="${CHROME}"/>`,
+
+    /* 12 lights + keys */ `
+<path d="M 55 111 L 80 107 L 81 115 L 57 117 Z" fill="#FFD27A" stroke="#B98A1E" stroke-width="1.2"/>
+<path d="M 428 107 L 440 111 L 440 119 L 428 116 Z" fill="#E23B30" stroke="#8F1F19" stroke-width="1"/>
+<path d="M 54 112 L 14 105 L 14 122 L 54 116 Z" fill="${AMBER}" opacity=".09" stroke="none"/>
+<text x="240" y="26" text-anchor="middle" fill="${AMBER}" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="22" letter-spacing="4">KEYS EARNED</text>`
+
+  ];
+
+  let out = `<defs>
+<linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#E2453A"/><stop offset=".55" stop-color="${RED}"/><stop offset="1" stop-color="#A32620"/>
+</linearGradient>
+<linearGradient id="gGlass" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#B7D2E6"/><stop offset="1" stop-color="#6E93AF"/>
+</linearGradient>
+<linearGradient id="gCarbon" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#343B44"/><stop offset="1" stop-color="#1B2026"/>
+</linearGradient>
+<linearGradient id="gRim" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#B9C2CA"/><stop offset="1" stop-color="#7C868E"/>
+</linearGradient>
+</defs>
+<line x1="10" y1="168" x2="470" y2="168" stroke="#2C343B" stroke-width="1"/>
+<ellipse cx="240" cy="168" rx="200" ry="4" fill="#0B0E11"/>`;
+
+  const ZORDER = [0,1,4,5,6,7,8,9,10,11,2,3,12]; /* unlock order != paint order */
+
+  ZORDER.forEach(i=>{
+
+    const markup = STAGES[i];
+
+    if(i<n) out += `<g>${markup}</g>`;
+
+    else if(i===n) out += `<g class="part-ghost">${markup}</g>`;
+
+  });
+
+  return out;
+
+}
+
+function drawCar(actualPct){
+
+  const builtN = stagesBuilt(actualPct);
+
+  const showN = viewStage===null ? builtN : viewStage;
+
+  $("carSvg").innerHTML = carSVG(showN);
+
+  const pctClamped = Math.min(actualPct,100);
 
   $("buildFill").style.width = pctClamped + "%";
 
   $("buildPct").innerHTML = `<b>${Math.round(pctClamped)}%</b> built &mdash; ${DATA.goalLabel}`;
 
-  const next = PARTS.find(p=>pct<p.at);
+  const next = PARTS.find(p=>actualPct<p.at);
 
   $("buildNext").textContent = next
 
-    ? `next up: ${next.name} at ${next.at}% (${money(DATA.goalTarget*next.at/100)})`
+    ? `next part: ${next.name.toLowerCase()} at ${next.at}% (${money(DATA.goalTarget*next.at/100)})`
 
     : "fully built. keys earned.";
 
+  /* pips */
+
+  $("pips").innerHTML = PARTS.map((p,i)=>{
+
+    const cl = i<builtN ? "built" : (i<showN ? "preview" : "");
+
+    return `<button class="pip ${cl}" data-i="${i+1}" aria-label="${p.name}" title="${p.name} at ${money(DATA.goalTarget*p.at/100)}"></button>`;
+
+  }).join("");
+
+  /* label */
+
+  if(showN===0){
+
+    $("stageLabel").innerHTML = `<b>Bare garage floor.</b> First part (frame) unlocks at ${money(DATA.goalTarget*PARTS[0].at/100)}.`;
+
+  } else {
+
+    const p = PARTS[showN-1];
+
+    const unlockAt = DATA.goalTarget*p.at/100;
+
+    const built = showN<=builtN;
+
+    $("stageLabel").innerHTML = built
+
+      ? `Stage ${showN}/${PARTS.length}: <b>${p.name}</b> &mdash; unlocked at ${money(unlockAt)}. Built. &#10003;`
+
+      : `Stage ${showN}/${PARTS.length}: <b>${p.name}</b> &mdash; <span class="fut">preview</span>. Unlocks at ${money(unlockAt)}.`;
+
+  }
+
 }
+
+/* scrub controls */
+
+document.addEventListener("click", e=>{
+
+  const pip = e.target.closest(".pip");
+
+  const actual = ()=> totalValue(DATA)/DATA.goalTarget*100;
+
+  if(pip){ viewStage = +pip.dataset.i; drawCar(actual()); return; }
+
+  if(e.target.id==="stPrev"){ const cur = viewStage===null?stagesBuilt(actual()):viewStage; viewStage=Math.max(0,cur-1); drawCar(actual()); }
+
+  if(e.target.id==="stNext"){ const cur = viewStage===null?stagesBuilt(actual()):viewStage; viewStage=Math.min(PARTS.length,cur+1); drawCar(actual()); }
+
+  if(e.target.id==="stToday"){ viewStage=null; drawCar(actual()); }
+
+});
 
 /* ---------------- render core ---------------- */
 
@@ -1188,6 +1391,8 @@ $("bCopy").addEventListener("click",async()=>{
 });
 
 ["sAdd","sRet","sYrs"].forEach(id=>$(id).addEventListener("input",()=>{ updateWhatIf(); drawChart(totalValue(DATA),Number(DATA.contributed)); }));
+
+if(!location.hash.includes("edit")) $("editorBox").style.display="none";
 
 buildEditor();
 
