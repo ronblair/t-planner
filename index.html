@@ -163,6 +163,19 @@ input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:4p
 .ms .amt{font-family:'Roboto Mono',monospace;font-size:12.5px;flex:0 0 150px;text-align:right}
 .ms .kseg{display:block;font-size:9px;color:var(--dim);letter-spacing:.06em}
 
+.showroom{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.tier{background:var(--bezel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 12px 14px;text-align:left;color:var(--ink);cursor:pointer;font-family:'Barlow',sans-serif}
+.tier:hover{border-color:var(--dim)}
+.tier.on{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber) inset}
+.tier:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.tier svg{display:block;width:100%;height:auto;margin-bottom:6px}
+.tprice{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;line-height:1}
+.tname{font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-top:4px}
+.tcars{font-size:12.5px;color:var(--dim);margin-top:6px;line-height:1.4;min-height:35px}
+.tneed{font-size:13px;margin-top:8px}
+.tneed b{font-family:'Barlow Condensed',sans-serif;font-size:18px;color:var(--ink)}
+.ttag{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.tier.on .ttag{color:var(--amber)}
 .fuelbox{background:var(--bezel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
 .fuelhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;font-family:'Roboto Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
 .fuelhead b{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;letter-spacing:.01em;color:var(--ink);text-transform:none}
@@ -220,7 +233,7 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
 
   <!-- CAR BUILD -->
   <section class="sect">
-    <div class="eyebrow">Building the first car, one deposit at a time</div>
+    <div class="eyebrow" id="buildEyebrow">Building the first car, one deposit at a time</div>
     <div class="buildbox">
       <svg id="carSvg" viewBox="0 0 480 190" aria-label="Car build progress"></svg>
       <div class="buildbar"><i id="buildFill" style="width:0%"></i></div>
@@ -244,6 +257,13 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
         <div class="delta" id="totDelta"></div>
       </div>
     </div>
+  </section>
+
+  <!-- SHOWROOM -->
+  <section class="sect">
+    <div class="eyebrow">The showroom &mdash; pick your ride</div>
+    <div class="showroom" id="showroom"></div>
+    <p class="note">Tap a car to make it your goal. The build, the badges, and this month's fuel goal all switch to match. Monthly amounts mean buying it outright at 17 (fall 2029), assuming the fund grows about 5% a year. Prices are 2026 averages for these models; by 2029 the same money should buy a newer model year.</p>
   </section>
 
   <!-- FUEL RUN -->
@@ -381,7 +401,8 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
 const DATA = {
   asOf: "2026-10-05",
   name: "Tyler",
-  age: 13,
+  age: 14,
+  keysDate: "2029-09",
   goalLabel: "first car at 17",
   goalTarget: 10000,
   monthlyTarget: 100,
@@ -452,6 +473,7 @@ function stagesBuilt(pct){ return PARTS.filter(p=>pct>=p.at).length; }
 
 /* ---- paint shop config ---- */
 const CONFIG = { body:"#D0342C", rim:"silver", tint:"smoke", wing:"std" };
+try{ Object.assign(CONFIG, JSON.parse(store.get("tg_paint")||"{}")); }catch(e){}
 const BODY_COLORS = [
   ["Rosso","#D0342C"],["Koenigsegg Orange","#E8730C"],["Gulf Blue","#2E74B5"],
   ["British Green","#2E6B4F"],["Midnight","#2B323A"],["Arctic White","#DDE2E4"]
@@ -470,8 +492,71 @@ function lum(hex){
   return (0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255))/255;
 }
 
+/* ---- body shapes: one per showroom tier ---- */
+const ARCHES = "L 436 144 L 385 144 A 33 33 0 0 0 319 144 L 166 144 A 33 33 0 0 0 98 144 Z";
+const SHAPES = {
+  coupe: {
+    body:"M 44 144 L 47 126 Q 52 112 74 107 Q 128 98 172 94 Q 192 90 212 72 Q 224 63 252 60 L 298 60 Q 328 62 352 78 Q 398 94 428 106 Q 440 111 440 124 "+ARCHES,
+    aPillar:"M 172 94 Q 192 90 212 72",
+    glass:"M 200 92 Q 216 68 250 64 L 296 64 Q 322 66 346 80 L 318 88 Q 262 94 212 95 Z",
+    pillars:"M 286 64 L 290 89",
+    seams:"M 212 95 Q 207 120 210 144 M 292 90 Q 296 118 298 144",
+    handles:[[270,104]],
+    mirror:[208,88,199,79,195,77],
+    tail:"M 428 107 L 440 111 L 440 119 L 428 116 Z",
+    line:"M 70 116 Q 200 103 300 106 Q 380 110 430 118",
+    chrome:"M 212 95 Q 262 94 318 88",
+    head:0, wingDx:0, wingDy:0,
+    lip:"M 402 92 L 438 85 L 440 93 L 406 99 Z"
+  },
+  compact: {
+    body:"M 44 144 L 46 124 Q 50 110 72 105 Q 120 98 160 95 Q 182 90 214 66 Q 228 57 258 56 L 300 56 Q 324 58 344 74 Q 356 84 372 85 L 424 88 Q 438 90 440 104 L 440 124 "+ARCHES,
+    aPillar:"M 160 95 Q 182 90 214 66",
+    glass:"M 190 92 Q 210 70 256 61 L 298 61 Q 320 63 336 77 L 326 88 Q 260 92 202 94 Z",
+    pillars:"M 266 61 L 266 91",
+    seams:"M 204 95 Q 200 120 203 144 M 267 92 L 268 144 M 330 89 Q 336 116 330 144",
+    handles:[[242,104],[302,103]],
+    mirror:[200,88,192,80,188,78],
+    tail:"M 418 92 L 440 96 L 440 106 L 420 102 Z",
+    line:"M 68 114 Q 200 104 300 104 Q 380 104 438 108",
+    chrome:"M 202 94 Q 260 92 326 88",
+    head:-2, wingDx:16, wingDy:8,
+    lip:"M 404 85 L 438 86 L 440 92 L 406 91 Z"
+  },
+  midsize: {
+    body:"M 44 144 L 46 122 Q 50 108 72 103 Q 122 96 166 93 Q 188 88 220 63 Q 234 54 262 53 L 310 53 Q 334 55 352 72 Q 364 83 380 84 L 426 86 Q 440 88 441 102 L 441 124 "+ARCHES,
+    aPillar:"M 166 93 Q 188 88 220 63",
+    glass:"M 196 90 Q 216 68 260 58 L 308 58 Q 330 60 344 75 L 334 87 Q 266 91 208 93 Z",
+    pillars:"M 274 58 L 274 90",
+    seams:"M 210 93 Q 206 120 209 144 M 275 91 L 276 144 M 338 88 Q 344 116 338 144",
+    handles:[[250,103],[312,102]],
+    mirror:[206,86,198,78,194,76],
+    tail:"M 422 90 L 441 94 L 441 104 L 424 100 Z",
+    line:"M 68 113 Q 200 103 300 103 Q 380 103 439 107",
+    chrome:"M 208 93 Q 266 91 334 87",
+    head:-3, wingDx:20, wingDy:6,
+    lip:"M 408 83 L 439 84 L 441 90 L 410 89 Z"
+  },
+  hatch: {
+    body:"M 44 144 L 46 120 Q 50 106 72 101 Q 112 95 150 92 Q 172 84 206 56 Q 218 48 244 47 L 362 47 Q 380 48 392 58 Q 412 76 424 96 Q 434 104 436 116 L 436 124 "+ARCHES,
+    aPillar:"M 150 92 Q 172 84 206 56",
+    glass:"M 182 89 Q 202 66 244 52 L 358 52 Q 372 53 382 62 L 392 76 L 378 86 Q 300 88 196 92 Z",
+    pillars:"M 262 52 L 262 90 M 332 52 L 334 87",
+    seams:"M 196 92 Q 192 120 195 144 M 263 91 L 264 144 M 336 88 Q 342 116 336 144",
+    handles:[[232,102],[298,101]],
+    mirror:[190,86,182,76,178,74],
+    tail:"M 420 92 L 432 100 L 434 114 L 424 110 Z",
+    line:"M 68 112 Q 200 104 300 102 Q 380 102 432 110",
+    chrome:"M 196 92 Q 300 88 378 86",
+    head:-5, wingDx:0, wingDy:-28,
+    lip:"M 352 45 L 392 50 L 394 56 L 358 52 Z",
+    cladding:true
+  }
+};
+
 /* each stage renders solid when built, the very next one as a dashed ghost, the rest hidden */
-function carSVG(n){
+function carSVG(n, shapeKey, mini){
+  const S = SHAPES[shapeKey] || SHAPES[currentTier().shape];
   const BODY=CONFIG.body, dark=lum(BODY)<0.25;
   const HI=shade(BODY,dark?1.5:1.14), LO=shade(BODY,dark?0.8:0.74);
   const EDGE=dark?shade(BODY,1.9):shade(BODY,0.6);
@@ -489,70 +574,74 @@ function carSVG(n){
     <path d="M ${cx} 128 L ${cx} 152 M ${cx-10.4} 133.5 L ${cx+10.4} 146.5 M ${cx-10.4} 146.5 L ${cx+10.4} 133.5 M ${cx-12} 140 L ${cx+12} 140" stroke="${shade(RIM2,0.7)}" stroke-width="2"/>
     <circle cx="${cx}" cy="140" r="3" fill="${shade(RIM2,0.9)}"/>`;
 
-  const wingMarkup =
-    CONFIG.wing==="low" ? `<path d="M 402 92 L 438 85 L 440 93 L 406 99 Z" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.3"/>`
-    : CONFIG.wing==="gt" ? `
-      <path d="M 366 78 L 371 46 M 400 76 L 405 44" stroke="#23282E" stroke-width="4" fill="none"/>
-      <path d="M 342 42 Q 400 34 456 38 L 457 49 Q 400 45 344 53 Z" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.3"/>
-      <rect x="452" y="32" width="7" height="24" rx="1.5" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.2"/>`
-    : `
+  const wingStd = `
       <path d="M 372 78 L 375 58 M 400 76 L 403 56" stroke="#23282E" stroke-width="3.5" fill="none"/>
       <path d="M 356 54 Q 400 48 444 50 L 445 58 Q 400 56 358 62 Z" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.3"/>
       <rect x="441" y="45" width="6" height="19" rx="1.5" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.2"/>`;
+  const wingGT = `
+      <path d="M 366 78 L 371 46 M 400 76 L 405 44" stroke="#23282E" stroke-width="4" fill="none"/>
+      <path d="M 342 42 Q 400 34 456 38 L 457 49 Q 400 45 344 53 Z" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.3"/>
+      <rect x="452" y="32" width="7" height="24" rx="1.5" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.2"/>`;
+  const wingMarkup =
+    CONFIG.wing==="low" ? `<path d="${S.lip}" fill="url(#gCarbon)" stroke="#12161A" stroke-width="1.3"/>`
+    : `<g transform="translate(${S.wingDx},${S.wingDy})">${CONFIG.wing==="gt"?wingGT:wingStd}</g>`;
+
+  const [mx1,my1,mx2,my2,mex,mey] = S.mirror;
+  const hd = S.head;
 
   const STAGES = [
-    `
+    /* 0 frame */ `
       <path d="M 76 148 H 410" fill="none" stroke="#6E7A84" stroke-width="2.4"/>
       <path d="M 104 148 L 116 112 M 180 148 V 104 M 300 148 V 104 M 388 148 L 376 114" fill="none" stroke="#6E7A84" stroke-width="2"/>
       <path d="M 116 112 L 180 104 L 300 104 L 376 114" fill="none" stroke="#6E7A84" stroke-width="2"/>
       <rect x="118" y="150" width="220" height="5" fill="#1C2228"/>`,
-    `
+    /* 1 suspension */ `
       ${[132,352].map(cx=>`
       <path d="M ${cx-36} 148 L ${cx} 141 M ${cx+36} 148 L ${cx} 141" fill="none" stroke="#8A959D" stroke-width="2"/>
       <path d="M ${cx} 114 l 8 4 l -16 4 l 16 4 l -16 4 l 14 4" fill="none" stroke="#8A959D" stroke-width="2"/>`).join("")}`,
-    `${wheel(132,false)}${wheel(352,false)}`,
-    `${wheel(132,true)}${wheel(352,true)}`,
-    `
-      <rect x="296" y="100" width="52" height="34" rx="4" fill="${COPPER}" stroke="#8F5624" stroke-width="1.6"/>
-      <path d="M 298 86 V 78 H 306 V 86 M 314 86 V 76 H 322 V 86" fill="none" stroke="#8F5624" stroke-width="2" transform="translate(6,14)"/>
-      <circle cx="308" cy="122" r="6" fill="none" stroke="#8F5624" stroke-width="2"/>`,
-    `
-      <path d="M 348 126 Q 396 128 424 130" fill="none" stroke="#59636C" stroke-width="3"/>
-      <circle cx="431" cy="129" r="5" fill="#454E57" stroke="#6E7A84" stroke-width="1.4"/>
-      <circle cx="431" cy="140" r="5" fill="#454E57" stroke="#6E7A84" stroke-width="1.4"/>`,
-    `
-      <path d="M 44 144 L 47 126 Q 52 112 74 107 Q 128 98 172 94 Q 192 90 212 72 Q 224 63 252 60 L 298 60 Q 328 62 352 78 Q 398 94 428 106 Q 440 111 440 124 L 436 144 L 385 144 A 33 33 0 0 0 319 144 L 166 144 A 33 33 0 0 0 98 144 Z"
-        fill="url(#gBody)" stroke="${EDGE}" stroke-width="1.5"/>
+    /* 2 wheels */ `${wheel(132,false)}${wheel(352,false)}`,
+    /* 3 brakes */ `${wheel(132,true)}${wheel(352,true)}`,
+    /* 4 engine (front-mounted, like all four showroom cars) */ `
+      <rect x="62" y="111" width="50" height="24" rx="4" fill="${COPPER}" stroke="#8F5624" stroke-width="1.6"/>
+      <path d="M 72 111 V 105 H 80 V 111 M 88 111 V 104 H 96 V 111" fill="none" stroke="#8F5624" stroke-width="2"/>
+      <circle cx="74" cy="126" r="5" fill="none" stroke="#8F5624" stroke-width="2"/>`,
+    /* 5 exhaust */ `
+      <path d="M 112 132 Q 270 150 438 138" fill="none" stroke="#59636C" stroke-width="3"/>
+      <circle cx="444" cy="134" r="4.5" fill="#454E57" stroke="#6E7A84" stroke-width="1.4"/>
+      <circle cx="444" cy="143" r="4.5" fill="#454E57" stroke="#6E7A84" stroke-width="1.4"/>`,
+    /* 6 body */ `
+      <path d="${S.body}" fill="url(#gBody)" stroke="${EDGE}" stroke-width="1.5"/>
       <path d="M 385 144 A 33 33 0 0 0 319 144 Z M 166 144 A 33 33 0 0 0 98 144 Z" fill="#101318"/>
+      ${S.cladding?`<path d="M 90 144 A 42 42 0 0 1 174 144 M 310 144 A 42 42 0 0 1 394 144" fill="none" stroke="#1B1F24" stroke-width="7"/>`:""}
       <path d="M 166 144 L 319 144 L 317 152 L 169 152 Z M 385 144 L 436 144 L 433 152 L 388 152 Z M 44 144 L 98 144 L 96 152 L 48 152 Z" fill="${SILL}"/>
-      <path d="M 172 94 Q 192 90 212 72" fill="none" stroke="${EDGE}" stroke-width="1.2"/>`,
-    `
+      <path d="${S.aPillar}" fill="none" stroke="${EDGE}" stroke-width="1.2"/>`,
+    /* 7 splitter & intakes */ `
       <path d="M 40 152 L 33 152 L 37 142 L 46 141 Z" fill="#23282E" stroke="#12161A" stroke-width="1.2"/>
       <path d="M 52 128 L 92 122 L 92 136 L 55 138 Z" fill="${TIRE}" stroke="#2C343B" stroke-width="1.2"/>
-      <path d="M 296 112 L 330 106 L 335 128 L 300 130 Z" fill="${TIRE}" stroke="#2C343B" stroke-width="1.2"/>`,
-    `
-      <path d="M 212 95 Q 207 120 210 144 M 292 90 Q 296 118 298 144" fill="none" stroke="${SEAM}" stroke-width="1.3"/>
-      <rect x="270" y="104" width="16" height="4.5" rx="2" fill="${DARKP}"/>
-      <path d="M 208 88 L 199 79" stroke="${SEAM}" stroke-width="2.4" fill="none"/>
-      <ellipse cx="195" cy="77" rx="7" ry="4.5" fill="${BODY}" stroke="${EDGE}" stroke-width="1.2"/>`,
-    `
+      <path d="M 398 152 L 434 152 L 431 157 L 400 157 Z" fill="#23282E" stroke="#12161A" stroke-width="1.2"/>
+      <path d="M 406 152 V 157 M 416 152 V 157 M 426 152 V 157" stroke="#3A4148" stroke-width="1.4"/>`,
+    /* 8 doors & mirror */ `
+      <path d="${S.seams}" fill="none" stroke="${SEAM}" stroke-width="1.3"/>
+      ${S.handles.map(([x,y])=>`<rect x="${x}" y="${y}" width="16" height="4.5" rx="2" fill="${DARKP}"/>`).join("")}
+      <path d="M ${mx1} ${my1} L ${mx2} ${my2}" stroke="${SEAM}" stroke-width="2.4" fill="none"/>
+      <ellipse cx="${mex}" cy="${mey}" rx="7" ry="4.5" fill="${BODY}" stroke="${EDGE}" stroke-width="1.2"/>`,
+    /* 9 glass & interior */ `
       <path d="M 244 92 Q 242 74 252 72 Q 258 72 257 80 L 258 92 Z" fill="#1A1D21"/>
       <circle cx="226" cy="83" r="4" fill="none" stroke="#1A1D21" stroke-width="2.4"/>
-      <path d="M 200 92 Q 216 68 250 64 L 296 64 Q 322 66 346 80 L 318 88 Q 262 94 212 95 Z"
-        fill="url(#gGlass)" fill-opacity="${GLOP}" stroke="${shade(GL2,0.85)}" stroke-width="1.3"/>
-      <path d="M 286 64 L 290 89" stroke="#22282E" stroke-width="3" fill="none"/>`,
-    wingMarkup,
-    `
-      <path d="M 70 116 Q 200 103 300 106 Q 380 110 430 118" fill="none" stroke="${dark?shade(BODY,2.2):shade(BODY,1.35)}" stroke-width="1.2" opacity=".75"/>
-      <path d="M 212 95 Q 262 94 318 88" fill="none" stroke="${CHROME}" stroke-width="1"/>
-      <circle cx="66" cy="111" r="2.6" fill="${CHROME}"/>
+      <path d="${S.glass}" fill="url(#gGlass)" fill-opacity="${GLOP}" stroke="${shade(GL2,0.85)}" stroke-width="1.3"/>
+      <path d="${S.pillars}" stroke="#22282E" stroke-width="3" fill="none"/>`,
+    /* 10 rear wing */ wingMarkup,
+    /* 11 trim & badges */ `
+      <path d="${S.line}" fill="none" stroke="${dark?shade(BODY,2.2):shade(BODY,1.35)}" stroke-width="1.2" opacity=".75"/>
+      <path d="${S.chrome}" fill="none" stroke="${CHROME}" stroke-width="1"/>
+      <circle cx="66" cy="${111+hd}" r="2.6" fill="${CHROME}"/>
       <circle cx="132" cy="140" r="3" fill="${AMBER}"/><circle cx="352" cy="140" r="3" fill="${AMBER}"/>
-      <rect x="270" y="104" width="16" height="4.5" rx="2" fill="${CHROME}"/>`,
-    `
-      <path d="M 55 111 L 80 107 L 81 115 L 57 117 Z" fill="#FFD27A" stroke="#B98A1E" stroke-width="1.2"/>
-      <path d="M 428 107 L 440 111 L 440 119 L 428 116 Z" fill="#E23B30" stroke="${EDGE}" stroke-width="1"/>
-      <path d="M 54 112 L 14 105 L 14 122 L 54 116 Z" fill="${AMBER}" opacity=".09" stroke="none"/>
-      <text x="240" y="26" text-anchor="middle" fill="${AMBER}" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="22" letter-spacing="4">KEYS EARNED</text>`
+      ${S.handles.map(([x,y])=>`<rect x="${x}" y="${y}" width="16" height="4.5" rx="2" fill="${CHROME}"/>`).join("")}`,
+    /* 12 lights + keys */ `
+      <path d="M 55 ${111+hd} L 80 ${107+hd} L 81 ${115+hd} L 57 ${117+hd} Z" fill="#FFD27A" stroke="#B98A1E" stroke-width="1.2"/>
+      <path d="${S.tail}" fill="#E23B30" stroke="${EDGE}" stroke-width="1"/>
+      ${mini?"":`<path d="M 54 ${112+hd} L 14 ${105+hd} L 14 ${122+hd} L 54 ${116+hd} Z" fill="${AMBER}" opacity=".09" stroke="none"/>
+      <text x="240" y="22" text-anchor="middle" fill="${AMBER}" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="22" letter-spacing="4">KEYS EARNED</text>`}`
   ];
 
   let out = `<defs>
@@ -576,10 +665,53 @@ function carSVG(n){
   ZORDER.forEach(i=>{
     const markup = STAGES[i];
     if(i<n) out += `<g>${markup}</g>`;
-    else if(i===n) out += `<g class="part-ghost">${markup}</g>`;
+    else if(i===n && !mini) out += `<g class="part-ghost">${markup}</g>`;
   });
   return out;
 }
+
+/* ---- showroom tiers ---- */
+const TIERS = [
+  { price:10000, name:"Daily Driver", shape:"hatch",
+    cars:"Subaru Crosstrek, Chevy Malibu, Nissan Rogue Sport", tag:"IIHS teen \"Good Choice\"" },
+  { price:15000, name:"Street Sedan", shape:"compact",
+    cars:"Mazda3 (2019 and newer)", tag:"IIHS teen \"Best Choice\"" },
+  { price:20000, name:"Midsize Cruiser", shape:"midsize",
+    cars:"Toyota Camry, Subaru Outback (2019+), or a 2019 BMW 4 Series", tag:"IIHS teen \"Best Choice\"" },
+  { price:25000, name:"4 Series", shape:"coupe",
+    cars:"BMW 4 Series (2020)", tag:"The dream" }
+];
+const EXPECTED_RETURN = 5; /* % a year, blended for the current stock/vault mix */
+let selectedPrice = (()=>{ const v=parseInt(store.get("tg_tier")||"",10); return TIERS.some(t=>t.price===v)?v:Number(DATA.goalTarget); })();
+function currentTier(){ return TIERS.find(t=>t.price===selectedPrice) || TIERS[0]; }
+function applyTier(){ DATA.goalTarget = currentTier().price; }
+function monthsToKeys(){
+  const a=new Date(DATA.asOf+"T12:00:00"), k=new Date(DATA.keysDate+"-01T12:00:00");
+  return Math.max(1,(k.getFullYear()-a.getFullYear())*12+(k.getMonth()-a.getMonth()));
+}
+function monthlyNeeded(price){
+  const P=totalValue(DATA), n=monthsToKeys(), r=EXPECTED_RETURN/100/12, g=Math.pow(1+r,n);
+  return Math.max(0, Math.ceil(((price - P*g)/((g-1)/r))/5)*5);
+}
+function renderShowroom(){
+  const P=totalValue(DATA);
+  $("showroom").innerHTML = TIERS.map(t=>{
+    const need=monthlyNeeded(t.price), on=t.price===selectedPrice;
+    return `<button class="tier${on?" on":""}" data-price="${t.price}" aria-pressed="${on}">
+      <svg viewBox="0 30 480 145" aria-hidden="true">${carSVG(13,t.shape,true)}</svg>
+      <div class="tprice">${money(t.price)}</div>
+      <div class="tname">${t.name}</div>
+      <div class="tcars">${t.cars}</div>
+      <div class="tneed">${P>=t.price?"Already enough to buy it":`<b>$${need}/mo</b> to own it outright at 17`}</div>
+      <div class="ttag">${on?"&#10003; Your pick":t.tag}</div>
+    </button>`;
+  }).join("");
+}
+document.addEventListener("click", e=>{
+  const b=e.target.closest(".tier"); if(!b) return;
+  selectedPrice=+b.dataset.price; store.set("tg_tier", String(selectedPrice));
+  viewStage=null; applyTier(); renderCore();
+});
 
 function renderPaintShop(){
   const chip=(group,val,on,style,label)=>`<button class="chip${on?" on":""}" data-g="${group}" data-v="${val}" style="${style}" aria-label="${label}" title="${label}"></button>`;
@@ -593,7 +725,9 @@ function renderPaintShop(){
 document.addEventListener("click", e=>{
   const b=e.target.closest(".pshop button"); if(!b) return;
   CONFIG[b.dataset.g]=b.dataset.v;
+  store.set("tg_paint", JSON.stringify(CONFIG));
   renderPaintShop();
+  renderShowroom();
   drawCar(totalValue(DATA)/DATA.goalTarget*100);
 });
 
@@ -604,7 +738,7 @@ function drawCar(actualPct){
 
   const pctClamped = Math.min(actualPct,100);
   $("buildFill").style.width = pctClamped + "%";
-  $("buildPct").innerHTML = `<b>${Math.round(pctClamped)}%</b> built &mdash; ${DATA.goalLabel}`;
+  $("buildPct").innerHTML = `<b>${Math.round(pctClamped)}%</b> built &mdash; ${currentTier().name} by ${goalAge()}`;
   const next = PARTS.find(p=>actualPct<p.at);
   $("buildNext").textContent = next
     ? `next part: ${next.name.toLowerCase()} at ${next.at}% (${money(DATA.goalTarget*next.at/100)})`
@@ -675,6 +809,7 @@ function renderCore(){
 
   drawChart(val, contrib);
   renderSaveBadges(val);
+  renderShowroom();
   renderFuel();
   renderInsight();
   renderPaintShop();
@@ -737,9 +872,12 @@ const SAVE_BADGES = [
   {at:2500,  name:"First Gear",    rarity:"uncommon"},
   {at:5000,  name:"Halfway There", rarity:"rare"},
   {at:7500,  name:"Turbo Mode",    rarity:"epic"},
-  {at:10000, name:"Keys at 17",    rarity:"legendary"},
   {at:KOENIGSEGG, name:"Koenigsegg", rarity:"mythic"}
 ];
+function badgeList(){
+  return SAVE_BADGES.concat([{at:currentTier().price, name:"Keys: "+currentTier().name, rarity:"legendary"}])
+    .sort((a,b)=>a.at-b.at);
+}
 function shieldSVG(color, earned){
   return `<svg class="shield" viewBox="0 0 52 58" aria-hidden="true">
     <path d="M26 2 L48 10 L48 30 Q48 46 26 56 Q4 46 4 30 L4 10 Z"
@@ -749,7 +887,7 @@ function shieldSVG(color, earned){
   </svg>`;
 }
 function renderSaveBadges(val){
-  $("saveBadges").innerHTML = SAVE_BADGES.map(b=>{
+  $("saveBadges").innerHTML = badgeList().map(b=>{
     const earned = val >= b.at;
     const [rname,rc] = RARITY[b.rarity];
     return `<div class="badge ${earned?"earned":"locked"}" style="--rc:${rc}">
@@ -869,21 +1007,24 @@ function monthToDate(){
 }
 function renderFuel(){
   const as = new Date(DATA.asOf+"T12:00:00");
-  const target = Number(DATA.monthlyTarget)||0;
+  const tier = currentTier();
+  const target = monthlyNeeded(tier.price);
   const mtd = monthToDate();
   const month = as.toLocaleDateString("en-US",{month:"long"});
   const daysInMonth = new Date(as.getFullYear(), as.getMonth()+1, 0).getDate();
   const daysLeft = daysInMonth - as.getDate();
   const pct = target>0 ? Math.min(mtd/target*100,100) : 0;
   const hit = target>0 && mtd>=target;
-  $("fuelLabel").textContent = `${month} goal: ${money(target)} in`;
+  $("fuelLabel").textContent = `${month} goal for the ${tier.name}: ${money(target)} in`;
   $("fuelNums").innerHTML = `${money2(mtd)} <span style="color:var(--dim);font-size:14px">of ${money(target)}</span>`;
   const f = $("fuelFill"); f.style.width = pct+"%"; f.className = hit?"full":"";
-  const yrsTo = Math.max(goalAge()-DATA.age, 1);
-  const boost = fv(0, target, 7, yrsTo);
+  if(target===0){
+    $("fuelNote").innerHTML = `<b>On track already.</b> The fund can cover the ${tier.name} by 17 without another deposit. Anything extra moves you up a tier.`;
+    return;
+  }
   $("fuelNote").innerHTML = hit
     ? `<b>Goal hit.</b> ${daysLeft} days left in ${month} and the tank is already full. Anything extra is pure bonus lap.`
-    : `${money(Math.max(target-mtd,0))} to go, ${daysLeft} days left. Why it matters: ${money(target)} every month until age ${goalAge()} adds about <b>${money(boost)}</b> toward the keys (at 7%). Small deposits, big machine.`;
+    : `${money(Math.max(target-mtd,0))} to go, ${daysLeft} days left. Put in ${money(target)} every month and the ${tier.name} (${money(tier.price)}) is paid for in full when you turn ${goalAge()}. Change your pick in the showroom and this goal changes with it.`;
 }
 
 /* ---------------- pit board: rotating weekly insight ---------------- */
@@ -893,7 +1034,7 @@ function renderInsight(){
   const days = Math.max(1, Math.round((new Date(DATA.asOf+"T12:00:00") - new Date("2025-10-10T12:00:00"))/86400000));
   const perDay = grow/days;
   const remaining = Math.max(DATA.goalTarget - P, 0);
-  const monthsLeft = Math.max((goalAge()-DATA.age)*12, 1);
+  const monthsLeft = monthsToKeys();
   const kPct = P/KOENIGSEGG*100;
   const POOL = [
     ()=>`This account has been <b>paid ${money2(divs)}</b> in dividends and interest since it opened. Zero chores were performed. That's what owning things does: it pays you.`,
@@ -989,6 +1130,7 @@ $("bBuild").addEventListener("click",()=>{
   asOf: "${DATA.asOf}",
   name: "${DATA.name}",
   age: ${DATA.age},
+  keysDate: "${DATA.keysDate}",
   goalLabel: "${DATA.goalLabel}",
   goalTarget: ${DATA.goalTarget},
   monthlyTarget: ${DATA.monthlyTarget},
@@ -1013,6 +1155,7 @@ $("bCopy").addEventListener("click",async()=>{
 ["sAdd","sRet","sYrs"].forEach(id=>$(id).addEventListener("input",()=>{ updateWhatIf(); drawChart(totalValue(DATA),Number(DATA.contributed)); }));
 
 if(!location.hash.includes("edit")) $("editorBox").style.display="none";
+applyTier();
 buildEditor();
 renderQuiz();
 renderCore();
