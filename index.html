@@ -401,6 +401,7 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
 const DATA = {
   asOf: "2026-10-05",
   name: "Tyler",
+  birthday: "2012-09-19",
   age: 14,
   keysDate: "2029-09",
   goalLabel: "first car at 17",
@@ -434,6 +435,15 @@ const DATA = {
   ]
 };
 /* ============ END OF DATA BLOCK ============ */
+
+/* age and keys date follow the birthday, so nothing goes stale */
+if(DATA.birthday){
+  const b=new Date(DATA.birthday+"T12:00:00"), a=new Date(DATA.asOf+"T12:00:00");
+  let age=a.getFullYear()-b.getFullYear();
+  if(a.getMonth()<b.getMonth() || (a.getMonth()===b.getMonth() && a.getDate()<b.getDate())) age--;
+  DATA.age=age;
+  DATA.keysDate=(b.getFullYear()+17)+"-"+String(b.getMonth()+1).padStart(2,"0");
+}
 
 const KOENIGSEGG = 3000000;
 const $ = id => document.getElementById(id);
@@ -1129,6 +1139,7 @@ $("bBuild").addEventListener("click",()=>{
 `const DATA = {
   asOf: "${DATA.asOf}",
   name: "${DATA.name}",
+  birthday: "${DATA.birthday}",
   age: ${DATA.age},
   keysDate: "${DATA.keysDate}",
   goalLabel: "${DATA.goalLabel}",
