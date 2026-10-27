@@ -395,11 +395,13 @@ textarea{width:100%;min-height:190px;background:#0B0E11;border:1px solid var(--l
                  dividend-reinvest purchases.
    cashDivs .... dividends that holding paid out as cash (before
                  reinvest was switched on). Counts toward its return.
+   deposits .... money Tyler put in, tagged by where it came from
+                 (job, birthday, gift...). Logged from Oct 2026 on.
    history ..... one line per month. Values before Aug 2026 are
                  reconstructed estimates; Oct, Nov 2025 + Aug 11 exact.
    ============================================================== */
 const DATA = {
-  asOf: "2026-10-05",
+  asOf: "2026-10-27",
   name: "Tyler",
   birthday: "2012-09-19",
   age: 14,
@@ -408,14 +410,14 @@ const DATA = {
   goalTarget: 10000,
   monthlyTarget: 100,
   lifetimeDivs: 131.25,
-  contributed: 5248.00,
-  cash: 30.13,
+  contributed: 5773.00,
+  cash: 555.13,
   pending: 0,
   holdings: [
     { symbol:"SPYM", label:"S&P 500 index fund - the engine", type:"stocks",
-      shares:25.830, price:90.95, invested:2107.92, cashDivs:0, since:"Dec '25" },
+      shares:25.841, price:90.47, invested:2107.92, cashDivs:0, since:"Dec '25" },
     { symbol:"USFR", label:"Treasury notes - the vault", type:"safe money",
-      shares:64.133, price:50.47, invested:3209.72, cashDivs:19.83, since:"Jun '26" }
+      shares:64.133, price:50.38, invested:3209.72, cashDivs:19.83, since:"Jun '26" }
   ],
   history: [
     { date:"2025-10-31", value:3304.09, contributed:3300.00 },
@@ -431,7 +433,12 @@ const DATA = {
     { date:"2026-08-11", value:5380.20, contributed:5048.00 },
     { date:"2026-08-31", value:5474.00, contributed:5128.00 },
     { date:"2026-09-30", value:5600.00, contributed:5248.00 },
-    { date:"2026-10-05", value:5615.24, contributed:5248.00 }
+    { date:"2026-10-05", value:5615.24, contributed:5248.00 },
+    { date:"2026-10-27", value:6123.98, contributed:5773.00 }
+  ],
+  deposits: [
+    { date:"2026-10-26", amount:250.00, source:"job",      note:"a job for a neighbor" },
+    { date:"2026-10-26", amount:275.00, source:"birthday", note:"birthday gifts" }
   ]
 };
 /* ============ END OF DATA BLOCK ============ */
@@ -1032,8 +1039,11 @@ function renderFuel(){
     $("fuelNote").innerHTML = `<b>On track already.</b> The fund can cover the ${tier.name} by 17 without another deposit. Anything extra moves you up a tier.`;
     return;
   }
+  const mine = (DATA.deposits||[]).filter(x=>{ const d=new Date(x.date+"T12:00:00"); return d.getFullYear()===as.getFullYear() && d.getMonth()===as.getMonth(); });
+  const fromLine = mine.length ? " This month: " + mine.map(x=>`${money(x.amount)} from ${x.note}`).join(", ") + "." : "";
+  const earned = mine.filter(x=>x.source==="job").reduce((s,x)=>s+x.amount,0);
   $("fuelNote").innerHTML = hit
-    ? `<b>Goal hit.</b> ${daysLeft} days left in ${month} and the tank is already full. Anything extra is pure bonus lap.`
+    ? `<b>Goal hit.</b> ${daysLeft} days left in ${month} and the tank is already full. Anything extra is pure bonus lap.${fromLine}${earned>0?` <b>${money(earned)} of it you earned yourself.</b>`:""}`
     : `${money(Math.max(target-mtd,0))} to go, ${daysLeft} days left. Put in ${money(target)} every month and the ${tier.name} (${money(tier.price)}) is paid for in full when you turn ${goalAge()}. Change your pick in the showroom and this goal changes with it.`;
 }
 
@@ -1058,6 +1068,10 @@ function renderInsight(){
     ()=>`Two people invest $100/month at 7% until 58. One starts at 18, one waits until 28. The early starter ends with roughly <b>double</b> (~$248k vs ~$117k). The first ten years do the heaviest lifting.`,
     ()=>`Keys math: ${money(remaining)} to go, ~${monthsLeft} months until age ${goalAge()}. That's about <b>${money(remaining/monthsLeft)}/month</b> even if the market does absolutely nothing. Growth makes it easier than that.`,
     ()=>`The vault (USFR) has collected over $40 in payouts since June. Boring is a strategy. Boring never has a bad year.`,
+    ()=>{ const job=(DATA.deposits||[]).filter(x=>x.source==="job").reduce((s,x)=>s+x.amount,0);
+          return job>0
+            ? `You've put <b>${money(job)}</b> of money you earned working into this fund. At 7% a year, that one job's pay is about ${money(fv(job,0,7,25))} by age ${DATA.age+25}. Work once, get paid for decades.`
+            : `Money you earn yourself counts double: once when you earn it, and again every year it grows.`; },
     ()=>`Leave this exact pot alone, add nothing, 7% a year: ${money(fv(P,0,7,25))} at age ${DATA.age+25}. The deposit that matters most is patience.`
   ];
   const as = new Date(DATA.asOf+"T12:00:00");
@@ -1135,6 +1149,7 @@ $("bSnap").addEventListener("click",()=>{
 $("bBuild").addEventListener("click",()=>{
   const h=DATA.holdings.map(x=>`    { symbol:"${x.symbol}", label:"${x.label}", type:"${x.type}",\n      shares:${x.shares}, price:${x.price}, invested:${x.invested}, cashDivs:${x.cashDivs}, since:"${x.since}" }`).join(",\n");
   const hist=DATA.history.map(x=>`    { date:"${x.date}", value:${x.value.toFixed(2)}, contributed:${x.contributed.toFixed(2)} }`).join(",\n");
+  const deps=(DATA.deposits||[]).map(x=>`    { date:"${x.date}", amount:${x.amount.toFixed(2)}, source:"${x.source}", note:"${x.note}" }`).join(",\n");
   $("out").value=
 `const DATA = {
   asOf: "${DATA.asOf}",
@@ -1154,6 +1169,9 @@ ${h}
   ],
   history: [
 ${hist}
+  ],
+  deposits: [
+${deps}
   ]
 };`;
   $("copyMsg").textContent="Ready. Paste this over the DATA block in index.html.";
